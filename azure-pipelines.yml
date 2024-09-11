@@ -36,7 +36,7 @@ steps:
 # Step 3: Build Docker Image
 - task: Docker@2
   inputs:
-    containerRegistry: 'ContainerRegistryConnection' # Connect your Azure Container Registry (if applicable)
+    containerRegistry: 'Docker Registry'
     repository: '$(DOCKER_IMAGE_NAME)'
     command: 'buildAndPush'
     Dockerfile: '**/Dockerfile'
