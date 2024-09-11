@@ -1,0 +1,49 @@
+trigger:
+  branches:
+    include:
+    - master
+
+pool:
+  vmImage: 'ubuntu-latest'
+
+variables:
+  SONARQUBE_SCANNER_MODE: "CLI"
+  DOCKER_IMAGE_NAME: "myapp"
+  VM_USERNAME: "azureuser"
+  VM_IP: "172.177.191.183"
+
+# Step 1: Checkout code
+steps:
+- checkout: self
+
+# Step 2: Run SonarQube Analysis
+- task: SonarQubePrepare@5
+  inputs:
+    SonarQube: 'SonarQube'
+    scannerMode: 'CLI'
+    configMode: 'file'
+    cliProjectKey: 'MyAppProject'
+    cliSources: '.'
+
+- script: |
+    python -m pip install --upgrade pip
+    pip install -r requirements.txt
+  displayName: 'Install Python Dependencies'
+
+- task: SonarQubeAnalyze@5
+  displayName: 'Run SonarQube Analysis'
+
+# Step 3: Build Docker Image
+- task: Docker@2
+  inputs:
+    containerRegistry: 'ContainerRegistryConnection' # Connect your Azure Container Registry (if applicable)
+    repository: '$(DOCKER_IMAGE_NAME)'
+    command: 'buildAndPush'
+    Dockerfile: '**/Dockerfile'
+    tags: |
+      latest
+
+# Step 4: SSH and Deploy Dockerized App to Azure VM
+- script: |
+    ssh -o StrictHostKeyChecking=no $(VM_USERNAME)@$(VM_IP) "docker pull $(DOCKER_IMAGE_NAME):latest && docker run -d -p 80:80 $(DOCKER_IMAGE_NAME):latest"
+  displayName: 'Deploy Docker Container to Azure VM'
