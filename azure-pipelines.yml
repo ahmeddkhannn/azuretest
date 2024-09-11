@@ -32,6 +32,8 @@ steps:
   displayName: 'Install Python Dependencies'
 
 - task: SonarQubeAnalyze@5
+  inputs:
+    options: '-X'
   displayName: 'Run SonarQube Analysis'
 
 # Step 3: Build Docker Image
