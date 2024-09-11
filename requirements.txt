@@ -1,0 +1,19 @@
+# Python packages for the project
+
+# For interacting with Azure
+azure-mgmt-compute==23.0.0
+azure-mgmt-network==22.0.0
+azure-mgmt-resource==23.0.0
+azure-identity==1.12.0
+
+# For Docker operations
+docker==6.1.2
+
+# For HTTP requests
+requests==2.28.1
+
+# For SonarQube analysis (if using Python)
+sonarqube-scanner-python==1.2.0
+
+# For general utilities and dependencies
+pip==24.2
