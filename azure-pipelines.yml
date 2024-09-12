@@ -17,50 +17,50 @@ variables:
   pythonScript: 'hello-world.py'
 
 stages:
-- build
-- sonarqube-scan
-- dockerize
+  - stage: build
+    jobs:
+      - job: build
+        steps:
+          - task: UsePythonVersion@0
+            inputs:
+              versionSpec: '3.9'
+              addToPath: true
+          - script: |
+              python -m pip install --upgrade pip
+              pip install -r requirements.txt
+            displayName: 'Install dependencies'
 
-jobs:
-- job: build
-  steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '3.9'
-      addToPath: true
-  - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: 'Install dependencies'
+  - stage: sonarqube-scan
+    dependsOn: build
+    jobs:
+      - job: sonarqube-scan
+        steps:
+          - task: SonarQubeScanner@4
+            inputs:
+              sonarqubeUrl: '$(sonarqubeUrl)'
+              authToken: $(squ_40f548de2adddd2f4d31ca10cefb8435b9601f3a)
+              projectKey: '$(sonarqubeProjectKey)'
+              projectName: '$(sonarqubeProjectName)'
+              sources: '.'
+            displayName: 'SonarQube Scan'
 
-- job: sonarqube-scan
-  dependsOn: build
-  steps:
-  - task: SonarQubeScanner@4
-    inputs:
-      sonarqubeUrl: '$(http://172.200.134.35:9000/)'
-      authToken: $(squ_40f548de2adddd2f4d31ca10cefb8435b9601f3a)
-      projectKey: '$(testazurepipeline)'
-      projectName: '$(Azure Pipeline)'
-      sources: '.'
-    displayName: 'SonarQube Scan'
-
-- job: dockerize
-  dependsOn: sonarqube-scan
-  steps:
-  - task: Docker@2
-    inputs:
-      command: 'buildAndPush'
-      Dockerfile: '$(Dockerfile)'
-      containerRegistry: '$(dockerRegistryServiceConnection)'
-      repository: '$(repository)'
-      tags: |
-        latest
-        $(Build.BuildId)
-      additionalImageTags: |
-        $(sonarqubeProjectKey):$(Build.BuildId)
-    displayName: 'Dockerize and push'
-
-  - script: |
-      docker run -d -p 80:80 $(repository):latest
-    displayName: 'Run Docker container'
+  - stage: dockerize
+    dependsOn: sonarqube-scan
+    jobs:
+      - job: dockerize
+        steps:
+          - task: Docker@2
+            inputs:
+              command: 'buildAndPush'
+              Dockerfile: '$(dockerfile)'
+              containerRegistry: '$(dockerRegistryServiceConnection)'
+              repository: '$(repository)'
+              tags: |
+                latest
+                $(Build.BuildId)
+              additionalImageTags: |
+                $(sonarqubeProjectKey):$(Build.BuildId)
+            displayName: 'Dockerize and push'
+          - script: |
+              docker run -d -p 80:80 $(repository):latest
+            displayName: 'Run Docker container'
