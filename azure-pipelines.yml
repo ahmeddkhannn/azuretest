@@ -28,6 +28,8 @@ steps:
       cliSources: '.'
       serverUrl: 'http://172.200.134.35:9000'
       sonar.projectKey: 'testazurepipeline'
+      sonar.projectName: 'Azure Pipeline'
+      sonar.projectVersion: '1.0'
 
   - script: |
       python -m pip install --upgrade pip
@@ -37,6 +39,7 @@ steps:
   - task: SonarQubeAnalyze@6
     inputs:
       projectKey: 'testazurepipeline'
+      sonar.projectKey: 'testazurepipeline'
       options: '-X'
     displayName: 'Run SonarQube Analysis'
 
