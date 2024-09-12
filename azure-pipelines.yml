@@ -24,7 +24,7 @@ steps:
     configMode: 'file'
     cliProjectKey: 'MyAppProject'
     cliSources: '.'
-    serverUrl: 'https://five-ants-wink.loca.lt'
+    serverUrl: 'http://172.177.191.183:9000'
 
 - script: |
     python -m pip install --upgrade pip
