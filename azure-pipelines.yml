@@ -37,6 +37,12 @@ steps:
     displayName: 'Install Python Dependencies'
 
   - script: |
+      # Install SonarScanner CLI
+      curl -sSf https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0-linux.zip > sonar-scanner-cli.zip
+      unzip sonar-scanner-cli.zip
+      export PATH=$PATH:/home/vsts/work/_temp/sonar-scanner-cli-6.0-linux/bin
+
+  - script: |
       sonar-scanner -X -Dsonar.verbose=true
       -Dsonar.projectKey=testazurepipeline
       -Dsonar.sources=.
