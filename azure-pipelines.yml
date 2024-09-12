@@ -1,75 +1,66 @@
 trigger:
-  branches:
-    include:
-      - master
+- main
 
 pool:
   vmImage: 'ubuntu-latest'
 
 variables:
-  SONARQUBE_SCANNER_MODE: 'CLI'
-  DOCKER_IMAGE_NAME: 'myapp'
-  VM_USERNAME: 'azureuser'
-  VM_IP: '172.200.134.353'
+  sonarqubeUrl: 'http://172.200.134.353:9000/'
+  sonarqubeProjectKey: 'testazurepipeline'
+  sonarqubeProjectName: 'Azure Pipeline'
+  dockerRegistryServiceConnection: 'dockerhub'
+  dockerRegistryUrl: 'https://index.docker.io/v1/'
+  dockerUsername: $(ahmeddkhannn)
+  dockerPassword: $(Sennatoenzo2002!)
+  repository: 'ahmeddkhannn/azuretest'
+  dockerfile: '**/Dockerfile'
+  pythonScript: 'hello-world.py'
 
-# Step 1: Checkout code
-steps:
-  - checkout: self
+stages:
+- build
+- sonarqube-scan
+- dockerize
 
-  # Step 2: Run SonarQube Analysis
-  - task: SonarQubePrepare@6
+jobs:
+- job: build
+  steps:
+  - task: UsePythonVersion@0
     inputs:
-      SonarQube: 'SonarQube'
-      scannerMode: 'CLI'
-      configMode: 'file'
-      cliProjectKey: 'testazurepipeline'
-      cliProjectName: 'Azure Pipeline'
-      cliProjectVersion: '1.0'
-      cliSources: '.'
-      serverUrl: 'http://172.200.134.35:9000'
-      sonar.projectKey: 'testazurepipeline'
-      sonar.projectName: 'Azure Pipeline'
-      sonar.projectVersion: '1.0'
-
+      versionSpec: '3.9'
+      addToPath: true
   - script: |
       python -m pip install --upgrade pip
       pip install -r requirements.txt
-    displayName: 'Install Python Dependencies'
+    displayName: 'Install dependencies'
 
-  - script: |
-      # Install SonarScanner CLI
-      curl -sSf https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0-linux.zip > sonar-scanner-cli.zip
-      unzip sonar-scanner-cli.zip
-      export PATH=$PATH:/home/vsts/work/_temp/sonar-scanner-cli-6.0-linux/bin
-      echo $PATH
-
-  - script: |
-      # Run SonarCloud CLI
-      pwd
-      which sonar-scanner-cli
-      sonar-scanner-cli begin /k:testazurepipeline /d:sonar.host.url=http://172.200.134.35:9000 /d:sonar.language=py
-      python hello-world.py
-      sonar-scanner-cli end /d:sonar.login=squ_478c70bbfbf91ff24d3b73aa1ad093f9aa5a5c74
-    displayName: 'Run SonarCloud CLI'
-
-  - task: SonarQubeAnalyze@6
+- job: sonarqube-scan
+  dependsOn: build
+  steps:
+  - task: SonarQubeScanner@4
     inputs:
-      projectKey: 'testazurepipeline'
-      sonar.projectKey: 'testazurepipeline'
-      options: '-X'
-    displayName: 'Run SonarQube Analysis'
+      sonarqubeUrl: '$(http://172.200.134.35:9000/)'
+      authToken: $(squ_40f548de2adddd2f4d31ca10cefb8435b9601f3a)
+      projectKey: '$(testazurepipeline)'
+      projectName: '$(Azure Pipeline)'
+      sources: '.'
+    displayName: 'SonarQube Scan'
 
-  # Step 3: Build Docker Image
+- job: dockerize
+  dependsOn: sonarqube-scan
+  steps:
   - task: Docker@2
     inputs:
-      containerRegistry: 'Docker Registry'
-      repository: '$(DOCKER_IMAGE_NAME)'
       command: 'buildAndPush'
-      Dockerfile: '**/Dockerfile'
+      Dockerfile: '$(Dockerfile)'
+      containerRegistry: '$(dockerRegistryServiceConnection)'
+      repository: '$(repository)'
       tags: |
         latest
+        $(Build.BuildId)
+      additionalImageTags: |
+        $(sonarqubeProjectKey):$(Build.BuildId)
+    displayName: 'Dockerize and push'
 
-  # Step 4: SSH and Deploy Dockerized App to Azure VM
   - script: |
-      ssh -o StrictHostKeyChecking=no $(VM_USERNAME)@$(VM_IP) "docker pull $(DOCKER_IMAGE_NAME):latest && docker run -d -p 80:80 $(DOCKER_IMAGE_NAME):latest"
-    displayName: 'Deploy Docker Container to Azure VM'
+      docker run -d -p 80:80 $(repository):latest
+    displayName: 'Run Docker container'
