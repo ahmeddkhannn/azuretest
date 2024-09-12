@@ -10,7 +10,7 @@ variables:
   SONARQUBE_SCANNER_MODE: "CLI"
   DOCKER_IMAGE_NAME: "myapp"
   VM_USERNAME: "azureuser"
-  VM_IP: "172.177.191.183"
+  VM_IP: "172.200.134.353"
 
 # Step 1: Checkout code
 steps:
