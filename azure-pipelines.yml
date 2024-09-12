@@ -36,6 +36,13 @@ steps:
       pip install -r requirements.txt
     displayName: 'Install Python Dependencies'
 
+  - script: |
+      sonar-scanner -X -Dsonar.verbose=true
+      -Dsonar.projectKey=testazurepipeline
+      -Dsonar.sources=.
+      -Dsonar.host.url=http://172.200.134.35:9000
+    displayName: 'Run SonarScanner CLI'
+
   - task: SonarQubeAnalyze@6
     inputs:
       projectKey: 'testazurepipeline'
