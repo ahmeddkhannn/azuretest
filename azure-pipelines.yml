@@ -17,9 +17,9 @@ variables:
   pythonScript: 'hello-world.py'
 
 stages:
-  - stage: build
+  - stage: build_stage
     jobs:
-      - job: build
+      - job: build_job
         steps:
           - task: UsePythonVersion@0
             inputs:
@@ -30,24 +30,24 @@ stages:
               pip install -r requirements.txt
             displayName: 'Install dependencies'
 
-  - stage: sonarqube-scan
-    dependsOn: build
+  - stage: sonarqube_scan_stage
+    dependsOn: build_stage
     jobs:
-      - job: sonarqube-scan
+      - job: sonarqube_scan_job
         steps:
-          - task: SonarQubeScanner@4
+          - task: SonarQubeScanner@6
             inputs:
-              sonarqubeUrl: '$(sonarqubeUrl)'
+              sonarqubeUrl: '$(http://172.200.134.35:9000/)'
               authToken: $(squ_40f548de2adddd2f4d31ca10cefb8435b9601f3a)
-              projectKey: '$(sonarqubeProjectKey)'
-              projectName: '$(sonarqubeProjectName)'
+              projectKey: '$(testazurepipeline)'
+              projectName: '$(Azure Pipeline)'
               sources: '.'
             displayName: 'SonarQube Scan'
 
-  - stage: dockerize
-    dependsOn: sonarqube-scan
+  - stage: dockerize_stage
+    dependsOn: sonarqube_scan_stage
     jobs:
-      - job: dockerize
+      - job: dockerize_job
         steps:
           - task: Docker@2
             inputs:
