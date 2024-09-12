@@ -43,11 +43,12 @@ steps:
       export PATH=$PATH:/home/vsts/work/_temp/sonar-scanner-cli-6.0-linux/bin
 
   - script: |
-      sonar-scanner -X -Dsonar.verbose=true
-      -Dsonar.projectKey=testazurepipeline
-      -Dsonar.sources=.
-      -Dsonar.host.url=http://172.200.134.35:9000
-    displayName: 'Run SonarScanner CLI'
+      # Run SonarCloud CLI
+      dotnet tool install --global dotnet-sonarscanner
+      dotnet sonarscanner begin /k:testazurepipeline /d:sonar.host.url=http://172.200.134.35:9000
+      dotnet build
+      dotnet sonarscanner end /d:sonar.login=squ_478c70bbfbf91ff24d3b73aa1ad093f9aa5a5c74
+    displayName: 'Run SonarCloud CLI'
 
   - task: SonarQubeAnalyze@6
     inputs:
