@@ -27,6 +27,7 @@ steps:
       cliProjectVersion: '1.0'
       cliSources: '.'
       serverUrl: 'http://172.200.134.35:9000'
+      sonar.projectKey: 'testazurepipeline'
 
   - script: |
       python -m pip install --upgrade pip
