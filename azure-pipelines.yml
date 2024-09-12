@@ -22,7 +22,9 @@ steps:
       SonarQube: 'SonarQube'
       scannerMode: 'CLI'
       configMode: 'file'
-      cliProjectKey: 'MyAppProject'
+      cliProjectKey: 'testazurepipeline'
+      cliProjectName: 'Azure Pipeline'
+      cliProjectVersion: '1.0'
       cliSources: '.'
       serverUrl: 'http://172.200.134.35:9000'
 
