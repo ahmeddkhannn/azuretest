@@ -17,21 +17,21 @@ steps:
 - checkout: self
 
 # Step 2: Run SonarQube Analysis
-- task: SonarQubePrepare@5
+- task: SonarQubePrepare@6
   inputs:
     SonarQube: 'SonarQube'
     scannerMode: 'CLI'
     configMode: 'file'
     cliProjectKey: 'MyAppProject'
     cliSources: '.'
-    serverUrl: 'http://172.200.134.353:9000'
+    serverUrl: 'http://172.200.134.35:9000'
 
 - script: |
     python -m pip install --upgrade pip
     pip install -r requirements.txt
   displayName: 'Install Python Dependencies'
 
-- task: SonarQubeAnalyze@5
+- task: SonarQubeAnalyze@6
   inputs:
     options: '-X'
   displayName: 'Run SonarQube Analysis'
@@ -49,4 +49,4 @@ steps:
 # Step 4: SSH and Deploy Dockerized App to Azure VM
 - script: |
     ssh -o StrictHostKeyChecking=no $(VM_USERNAME)@$(VM_IP) "docker pull $(DOCKER_IMAGE_NAME):latest && docker run -d -p 80:80 $(DOCKER_IMAGE_NAME):latest"
-  displayName: 'Deploy Docker Container to Azure VM'
+  displayName
