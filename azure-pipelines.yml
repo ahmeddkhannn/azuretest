@@ -35,6 +35,7 @@ steps:
 
   - task: SonarQubeAnalyze@6
     inputs:
+      projectKey: 'testazurepipeline'
       options: '-X'
     displayName: 'Run SonarQube Analysis'
 
