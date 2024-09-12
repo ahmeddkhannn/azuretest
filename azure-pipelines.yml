@@ -44,10 +44,9 @@ steps:
 
   - script: |
       # Run SonarCloud CLI
-      dotnet tool install --global dotnet-sonarscanner
-      dotnet sonarscanner begin /k:testazurepipeline /d:sonar.host.url=http://172.200.134.35:9000 /d:sonar.language=py
+      sonar-scanner-cli begin /k:testazurepipeline /d:sonar.host.url=http://172.200.134.35:9000 /d:sonar.language=py
       python hello-world.py
-      dotnet sonarscanner end /d:sonar.login=squ_478c70bbfbf91ff24d3b73aa1ad093f9aa5a5c74
+      sonar-scanner-cli end /d:sonar.login=squ_478c70bbfbf91ff24d3b73aa1ad093f9aa5a5c74
     displayName: 'Run SonarCloud CLI'
 
   - task: SonarQubeAnalyze@6
