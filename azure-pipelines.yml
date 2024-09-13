@@ -16,7 +16,16 @@ variables:
 steps:
   - checkout: self
 
-  # Step 2: Run SonarQube Analysis
+  # Step 2: Install SonarQube Scanner
+  - script: |
+      sudo apt-get update
+      sudo apt-get install unzip
+      wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-linux.zip
+      unzip sonar-scanner-cli-6.0.0.4432-linux.zip
+      export PATH=$PATH:$(pwd)/sonar-scanner-6.0.0.4432-linux/bin
+    displayName: 'Install SonarQube Scanner'
+
+  # Step 3: Run SonarQube Analysis
   - task: SonarQubePrepare@6
     inputs:
       SonarQube: 'SonarQube'
@@ -32,12 +41,7 @@ steps:
       sonar.projectVersion: '1.0'
 
   - script: |
-      python -m pip install --upgrade pip
-      pip install -r requirements.txt
-    displayName: 'Install Python Dependencies'
-
-  - script: |
-      /home/azureuser/sonar-scanner-6.0.0.4432-linux/bin/sonar-scanner -X -Dsonar.verbose=true \
+      sonar-scanner -X -Dsonar.verbose=true \
         -Dsonar.projectKey=testazurepipeline \
         -Dsonar.sources=. \
         -Dsonar.host.url=http://172.200.134.35:9000
@@ -50,7 +54,7 @@ steps:
       options: '-X'
     displayName: 'Run SonarQube Analysis'
 
-  # Step 3: Build Docker Image
+  # Step 4: Build Docker Image
   - task: Docker@2
     inputs:
       containerRegistry: 'Docker Registry'
@@ -60,7 +64,7 @@ steps:
       tags: |
         latest
 
-  # Step 4: SSH and Deploy Dockerized App to Azure VM
+  # Step 5: SSH and Deploy Dockerized App to Azure VM
   - script: |
       ssh -o StrictHostKeyChecking=no $(VM_USERNAME)@$(VM_IP) "docker pull $(DOCKER_IMAGE_NAME):latest && docker run -d -p 80:80 $(DOCKER_IMAGE_NAME):latest"
     displayName: 'Deploy Docker Container to Azure VM'
