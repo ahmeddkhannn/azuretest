@@ -37,8 +37,7 @@ steps:
     displayName: 'Install Python Dependencies'
 
   - script: |
-      export PATH=$PATH:~/sonar-scanner-6.0.0.4432-linux/bin
-      sonar-scanner -X -Dsonar.verbose=true \
+      ~/sonar-scanner-6.0.0.4432-linux/bin/sonar-scanner -X -Dsonar.verbose=true \
         -Dsonar.projectKey=testazurepipeline \
         -Dsonar.sources=. \
         -Dsonar.host.url=http://172.200.134.35:9000
