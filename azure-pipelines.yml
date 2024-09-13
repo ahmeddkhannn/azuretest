@@ -23,7 +23,7 @@ steps:
       wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-6.0.0.4432-linux.zip
       unzip sonar-scanner-cli-6.0.0.4432-linux.zip
       export PATH=$(pwd)/sonar-scanner-6.0.0.4432-linux/bin:$PATH
-      echo "PATH=$PATH" >> $BASH_ENV  # Ensure PATH is updated in subsequent steps
+      echo "export PATH=$(pwd)/sonar-scanner-6.0.0.4432-linux/bin:\$PATH" >> ~/.bashrc  # Add it to .bashrc instead of $BASH_ENV
     displayName: 'Install SonarQube Scanner'
 
   # Step 3: Run SonarQube Analysis
